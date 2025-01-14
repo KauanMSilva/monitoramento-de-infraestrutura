@@ -16,7 +16,7 @@ conectarMongoDB();
 app.use(express.json());
 
 app.get('/status', (req, res) => {
-  // Lógica para obter o status dos servidores, bancos de dados e redes
+  // Lógica para obter o status dos servidores, bancos de dados e redes chamaaaaaaaaaaaaaaaa
   res.json({ status: 'ok' });
 });
 
