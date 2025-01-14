@@ -6,7 +6,7 @@ const app = express();
 const mongoose = require('mongoose');
 const axios = require('axios');
 
-// Conectar ao MongoDB
+//conectar
 async function conectarMongoDB() {
   try {
     await mongoose.connect('mongodb://localhost/monitoramento');
@@ -18,7 +18,7 @@ async function conectarMongoDB() {
 
 conectarMongoDB();
 
-// Definir o modelo de dados para os servidores
+// aqui a gente definie o modelo de dados para os servidores
 const servidorSchema = new mongoose.Schema({
   nome: String,
   ip: String,
@@ -27,7 +27,7 @@ const servidorSchema = new mongoose.Schema({
 
 const Servidor = mongoose.model('Servidor', servidorSchema);
 
-// Monitorar os servidores
+// aqui a gente monitorar os servidores . . 
 const monitorarServidores = async () => {
   const servidores = await Servidor.find();
   servidores.forEach(servidor => {
@@ -48,7 +48,7 @@ const monitorarServidores = async () => {
 
 monitorarServidores();
 
-// Definir a rota para obter o status dos servidores
+// aqui a gente define a rota para pegar o status dos servidores
 app.get('/status', async (req, res) => {
   try {
     const servidores = await Servidor.find();
@@ -67,7 +67,7 @@ app.get('/status', async (req, res) => {
   }
 });
 
-// Definir a rota para obter o desempenho dos servidores
+// aqui ja é para definir rota para obter o desempenho dos servidores
 app.get('/desempenho', async (req, res) => {
   try {
     const servidores = await Servidor.find();
@@ -86,11 +86,10 @@ app.get('/desempenho', async (req, res) => {
   }
 });
 
-// Definir a rota para enviar alertas
 app.post('/alerta', async (req, res) => {
   try {
     const { servidor, mensagem } = req.body;
-    // Enviar alerta para o servidor
+    // envia um alerta para o servidor
     console.log(`Enviando alerta para o servidor ${servidor}: ${mensagem}`);
     res.json({ message: 'Alerta enviado com sucesso' });
   } catch (error) {
@@ -99,7 +98,6 @@ app.post('/alerta', async (req, res) => {
   }
 });
 
-// Iniciar o servidor
 app.listen(3000, () => {
   console.log('Servidor rodando na porta 3000');
 });
