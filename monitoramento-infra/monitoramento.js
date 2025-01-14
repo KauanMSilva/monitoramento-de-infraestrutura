@@ -1,12 +1,10 @@
-
-
-
 const express = require('express');
 const app = express();
 const mongoose = require('mongoose');
 const axios = require('axios');
+const Chart = require('chart.js');
 
-//conectar
+// Conectar ao MongoDB
 async function conectarMongoDB() {
   try {
     await mongoose.connect('mongodb://localhost/monitoramento');
@@ -18,7 +16,7 @@ async function conectarMongoDB() {
 
 conectarMongoDB();
 
-// aqui a gente definie o modelo de dados para os servidores
+// aqui define o modelo de dados para os servidores
 const servidorSchema = new mongoose.Schema({
   nome: String,
   ip: String,
@@ -27,77 +25,77 @@ const servidorSchema = new mongoose.Schema({
 
 const Servidor = mongoose.model('Servidor', servidorSchema);
 
-// aqui a gente monitorar os servidores . . 
+// Monitorar os servidores
 const monitorarServidores = async () => {
-  const servidores = await Servidor.find();
-  servidores.forEach(servidor => {
-    axios.get(`http://${servidor.ip}/status`)
-      .then(response => {
+    const servidores = await Servidor.find();
+    for (const servidor of servidores) {
+      try {
+        const response = await axios.get(`http://${servidor.ip}/status`);
         if (response.data.status === 'ok') {
           servidor.status = 'ok';
         } else {
           servidor.status = 'erro';
         }
-        servidor.save();
-      })
-      .catch(error => {
+        await servidor.save();
+      } catch (error) {
         console.error(error);
-      });
+      }
+    }
+  };
+  
+
+// aqui ja define  a rota para visualizar os dados
+app.get('/visualizar', async (req, res) => {
+    try {
+      const servidores = await Servidor.find();
+      const dados = await Promise.all(servidores.map(async (servidor) => {
+        try {
+          const response = await axios.get(`http://${servidor.ip}/desempenho`);
+          if (response.data && response.data.desempenho) {
+            return { nome: servidor.nome, desempenho: response.data.desempenho };
+          } else {
+            return { nome: servidor.nome, desempenho: 'erro' };
+          }
+        } catch (error) {
+          console.error(error);
+          return { nome: servidor.nome, desempenho: 'erro' };
+        }
+      }));
+      const labels = dados.map(dado => dado.nome);
+      const valores = dados.map(dado => dado.desempenho);
+      res.render('visualizar', { labels, valores });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: 'Erro ao visualizar os dados' });
+    }
   });
-};
+  
 
-monitorarServidores();
+    const labels = dados.map(dado => dado.nome);
+    const valores = dados.map(dado => dado.desempenho);
 
-// aqui a gente define a rota para pegar o status dos servidores
-app.get('/status', async (req, res) => {
-  try {
-    const servidores = await Servidor.find();
-    const statusServidores = await Promise.all(servidores.map(async (servidor) => {
-      try {
-        const response = await axios.get(`http://${servidor.ip}/status`);
-        return { nome: servidor.nome, status: response.data.status };
-      } catch (error) {
-        return { nome: servidor.nome, status: 'erro' };
-      }
-    }));
-    res.json(statusServidores);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Erro ao obter o status dos servidores' });
-  }
-});
-
-// aqui ja é para definir rota para obter o desempenho dos servidores
-app.get('/desempenho', async (req, res) => {
-  try {
-    const servidores = await Servidor.find();
-    const desempenhoServidores = await Promise.all(servidores.map(async (servidor) => {
-      try {
-        const response = await axios.get(`http://${servidor.ip}/desempenho`);
-        return { nome: servidor.nome, desempenho: response.data.desempenho };
-      } catch (error) {
-        return { nome: servidor.nome, desempenho: 'erro' };
-      }
-    }));
-    res.json(desempenhoServidores);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Erro ao obter o desempenho dos servidores' });
-  }
-});
-
-app.post('/alerta', async (req, res) => {
-  try {
-    const { servidor, mensagem } = req.body;
-    // envia um alerta para o servidor
-    console.log(`Enviando alerta para o servidor ${servidor}: ${mensagem}`);
-    res.json({ message: 'Alerta enviado com sucesso' });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Erro ao enviar alerta' });
-  }
-});
-
-app.listen(3000, () => {
-  console.log('Servidor rodando na porta 3000');
-});
+    app.get('/visualizar', async (req, res) => {
+        try {
+          const servidores = await Servidor.find();
+          const dados = await Promise.all(servidores.map(async (servidor) => {
+            try {
+              const response = await axios.get(`http://${servidor.ip}/desempenho`);
+              if (response.data && response.data.desempenho) {
+                return { nome: servidor.nome, desempenho: response.data.desempenho };
+              } else {
+                return { nome: servidor.nome, desempenho: 'erro' };
+              }
+            } catch (error) {
+              console.error(error);
+              return { nome: servidor.nome, desempenho: 'erro' };
+            }
+          }));
+          const labels = dados.map(dado => dado.nome);
+          const valores = dados.map(dado => dado.desempenho);
+          res.render('visualizar', { labels, valores });
+        } catch (error) {
+          console.error(error);
+          res.status(500).json({ message: 'Erro ao visualizar os dados' });
+        }
+      });
+      
