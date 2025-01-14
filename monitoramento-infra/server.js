@@ -30,25 +30,17 @@ app.get('/visualizar', (req, res) => {
   res.render('visualizar.html', { labels: labels, valores: valores });
 });
 
-
-
-
-
-
 app.post('/visualizar', (req, res) => {
-  // Código para lidar com a requisição POST para a rota "/visualizar"
   console.log(req.body);
   res.send('Requisição POST recebida!');
 });
 
 app.put('/visualizar', (req, res) => {
-  // Código para lidar com a requisição PUT para a rota "/visualizar"
   console.log(req.body);
   res.send('Requisição PUT recebida!');
 });
 
 app.delete('/visualizar', (req, res) => {
-  // Código para lidar com a requisição DELETE para a rota "/visualizar"
   console.log(req.body);
   res.send('Requisição DELETE recebida!');
 });

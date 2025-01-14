@@ -4,7 +4,7 @@ const mongoose = require('mongoose');
 const axios = require('axios');
 const Chart = require('chart.js');
 
-// Conectar ao MongoDB
+// conecta o MongoDB
 async function conectarMongoDB() {
   try {
     await mongoose.connect('mongodb://localhost/monitoramento');
@@ -25,7 +25,7 @@ const servidorSchema = new mongoose.Schema({
 
 const Servidor = mongoose.model('Servidor', servidorSchema);
 
-// Monitorar os servidores
+// monitora os servidores
 const monitorarServidores = async () => {
     const servidores = await Servidor.find();
     for (const servidor of servidores) {
