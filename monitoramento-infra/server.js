@@ -20,14 +20,14 @@ conectarMongoDB();
 app.use(express.json());
 
 app.get('/status', (req, res) => {
-  // Lógica para obter o status dos servidores, bancos de dados e redes
+  // obter o status dos servidores, bancos de dados e redes
   res.json({ status: 'ok' });
 });
 
 app.get('/visualizar', (req, res) => {
   const labels = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun'];
   const valores = [10, 20, 30, 40, 50, 60];
-  res.render('visualizar.html', { labels: labels, valores: valores });
+  res.render('index.html', { labels: labels, valores: valores });
 });
 
 app.post('/visualizar', (req, res) => {
